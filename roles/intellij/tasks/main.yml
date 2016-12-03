@@ -1,0 +1,26 @@
+- name: check intellij version already installed
+  stat: 
+    path: "{{registry_installed_dir}}/ideaIU-{{intellij_version}}"
+  register: version
+
+# block will not be executed if the version is already installed
+- block:
+    - name: Download IntelliJ 
+      get_url: url=https://download.jetbrains.com/idea/ideaIU-{{intellij_version}}-no-jdk.tar.gz
+               dest=/tmp/ideaIU-{{intellij_version}}.tar.gz validate_certs=false
+
+    - name: Extract IntelliJ
+      command: /bin/tar xzf /tmp/ideaIU-{{intellij_version}}.tar.gz  -C /opt/ creates=/opt/ideaIU-{{intellij_version}}.tar.gz 
+
+    - name: Remove old version
+      file: path=/opt/intellij state=absent
+
+    - name: Rename folder
+      shell: mv /opt/idea-IU-* /opt/intellij && touch {{registry_installed_dir}}/ideaIU-{{intellij_version}}
+
+    - name: configure vm options
+      template: src=templates/idea64.vmoptions dest=/opt/intellij/bin/idea64.vmoptions  
+
+    - name: create application launcher
+      template: src=templates/jetbrains-idea.desktop dest="{{launcher_dir}}/jetbrains-idea.desktop"  
+  when: not version.stat.exists

@@ -1,0 +1,14 @@
+---
+# oracle-jdk8, tomcat8
+
+- hosts: localhost
+  remote_user: root
+  pre_tasks:
+    - name: ensure registry directory exists
+      file: path={{registry_installed_dir}} state=directory
+
+  roles:
+    #- oracle-jdk8
+    #- tomcat8+++
+    - intellij
+
