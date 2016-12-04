@@ -1,0 +1,38 @@
+- debug:
+    msg: "installing Maven {{maven_version}} "
+
+- name: check Maven {{maven_version}} already installed
+  stat: 
+    path: "{{registry_installed_dir}}/maven-{{maven_version}}"
+  register: version
+
+# block will not be executed if the version is already installed
+- block:
+    
+    - name: download Maven
+      get_url: url=http://mirror.softaculous.com/apache/maven/maven-3/{{maven_version}}/binaries/apache-maven-{{maven_version}}-bin.tar.gz
+               dest=/tmp/maven-{{maven_version}}.tar.gz 
+
+    - name: extract Maven
+      command: tar xzf /tmp/maven-{{maven_version}}.tar.gz -C /opt/ creates=/opt/apache-maven-{{maven_version}}
+
+    - name: remove old Maven version
+      file: path=/opt/maven state=absent
+
+    - name: set new Maven version
+      shell: mv /opt/apache-maven-{{maven_version}} /opt/maven
+
+    - name: configure settings.xml
+      template: src=settings.xml dest=/opt/maven/conf/settings.xml
+    
+    - name: set environemt variables
+      template: src=profile.d/maven.sh dest=/etc/profile.d/maven.sh
+    
+    #delete old file and create a new file with the current version
+    - name: create registry file
+      shell: rm -f {{registry_installed_dir}}/maven-* && touch {{registry_installed_dir}}/maven-{{maven_version}}
+
+    - name: delete tmp files
+      file: path=/tmp/maven-{{maven_version}}.tar.gz state=absent
+
+  when: not version.stat.exists or maven_force_install|default(false) or force_reinstall|default(false)

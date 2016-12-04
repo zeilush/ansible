@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<service>
-  <short>tomcat</short>
-  <description>tomcat port</description>
-  <port protocol="tcp" port="{{http_port}}" />
-  <port protocol="tcp" port="{{jmx_registry_port}}" />
-  <port protocol="tcp" port="{{jmx_server_port}}" />
-</service>

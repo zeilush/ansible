@@ -1,26 +1,35 @@
 - name: check intellij version already installed
   stat: 
-    path: "{{registry_installed_dir}}/ideaIU-{{intellij_version}}"
+    path: "{{registry_installed_dir}}/intellij-{{intellij_version}}"
   register: version
 
 # block will not be executed if the version is already installed
 - block:
-    - name: Download IntelliJ 
+
+    - name: download IntelliJ 
       get_url: url=https://download.jetbrains.com/idea/ideaIU-{{intellij_version}}-no-jdk.tar.gz
                dest=/tmp/ideaIU-{{intellij_version}}.tar.gz validate_certs=false
 
-    - name: Extract IntelliJ
+    - name: extract IntelliJ
       command: /bin/tar xzf /tmp/ideaIU-{{intellij_version}}.tar.gz  -C /opt/ creates=/opt/ideaIU-{{intellij_version}}.tar.gz 
 
-    - name: Remove old version
+    - name: remove old IntelliJ version
       file: path=/opt/intellij state=absent
 
-    - name: Rename folder
-      shell: mv /opt/idea-IU-* /opt/intellij && touch {{registry_installed_dir}}/ideaIU-{{intellij_version}}
+    - name: set new IntelliJ version
+      shell: mv /opt/idea-IU-* /opt/intellij
 
     - name: configure vm options
       template: src=templates/idea64.vmoptions dest=/opt/intellij/bin/idea64.vmoptions  
 
     - name: create application launcher
-      template: src=templates/jetbrains-idea.desktop dest="{{launcher_dir}}/jetbrains-idea.desktop"  
-  when: not version.stat.exists
+      template: src=jetbrains-idea.desktop dest="{{launcher_dir}}/jetbrains-idea.desktop"  
+    
+    #delete old file and create a new file with the current version
+    - name: create registry file
+      shell: rm -f {{registry_installed_dir}}/intellij-* && touch {{registry_installed_dir}}/intellij-{{intellij_version}}
+    
+    - name: delete tmp files
+      file: path=/tmp/ideaIU-{{intellij_version}}.tar.gz state=absent
+      
+  when: not version.stat.exists or intellij_force_install|default(false) or force_reinstall|default(false)

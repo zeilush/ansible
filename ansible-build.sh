@@ -1,4 +1,7 @@
 #!/bin/bash
 #ansible-playbook site.yml -i hosts -c paramiko
 
-ansible-playbook --limit="all" --inventory-file=hosts --sudo -v site.yml
+DIR="${BASH_SOURCE%/*}"
+if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+
+ansible-playbook --limit="all" --inventory-file=$DIR/hosts --sudo -v $DIR/site.yml $@

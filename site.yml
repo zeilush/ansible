@@ -9,6 +9,6 @@
 
   roles:
     #- oracle-jdk8
-    #- tomcat8+++
-    - intellij
-
+    #- tomcat8
+    - maven
+    #- intellij

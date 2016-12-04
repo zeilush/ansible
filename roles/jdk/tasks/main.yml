@@ -1,0 +1,52 @@
+- name: check JDK version {{jdk_version}} already installed
+  stat: 
+    path: "{{registry_installed_dir}}/jdk-{{jdk_version}}"
+  register: version
+
+# block will not be executed if the version is already installed
+- block:
+
+    - name: Download JDK
+      get_url:
+        url: http://download.oracle.com/otn-pub/java/jdk/{{jdk_version}}-b14/jdk-{{jdk_version}}-linux-x64.tar.gz
+        headers: Cookie:oraclelicense=accept-securebackup-cookie
+        dest: /tmp/jdk-{{jdk_version}}.tar.gz
+      #shell: 'wget --no-check-certificate --no-cookies - --header "Cookie: oraclelicense=accept-securebackup-cookie" \
+      #        http://download.oracle.com/otn-pub/java/jdk/{{jdk_version}}-b14/jdk-{{jdk_version}}-linux-x64.tar.gz -O /tmp/jdk-{{jdk_version}}.tar.gz'
+      
+
+    - name: Extract JDK archive
+      command: tar xzf /tmp/jdk-{{jdk_version}}.tar.gz -C /opt creates=/opt/{{jdk_extract_dir}}
+
+    - name: Remove old JDK version
+      file: path=/opt/jdk state=absent
+
+    - name: set new JDK version
+      shell: mv /opt/{{jdk_extract_dir}} /opt/jdk
+
+    #- name: update-alternatives --install
+    #  shell: update-alternatives --install /usr/bin/{{item}} {{item}} /opt/jdk/bin/{{item}} 2
+    #  with_items:
+    #    - java
+    #    - jar
+    #    - javac
+
+    #- name: update-alternatives --set
+    #  shell: update-alternatives --set {{item}} /opt/jdk/bin/{{item}}
+    #  with_items:
+    #    - java
+    #    - jar
+    #    - javac
+
+    - name: set environment variables
+      template: src=profile.d/java.sh dest=/etc/profile.d/java.sh
+
+    #delete old file and create a new file with the current version
+    - name: create registry file
+      shell: rm -f {{registry_installed_dir}}/jdk-* && touch {{registry_installed_dir}}/jdk-{{jdk_version}}
+
+    - name: delete tmp files
+      file: path=/tmp/jdk-{{jdk_version}}.tar.gz state=absent
+
+  when: not version.stat.exists or jdk_force_install|default(false) or force_reinstall|default(false)
+
