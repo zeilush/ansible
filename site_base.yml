@@ -1,0 +1,12 @@
+---
+# oracle-jdk8, tomcat8
+
+- hosts: localhost
+  remote_user: root
+
+  roles:
+    #- base/directories
+    #- base/user
+    #- base/xfce
+    #- base/google-chrome
+    - base/gedit

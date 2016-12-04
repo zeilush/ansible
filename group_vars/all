@@ -1,3 +1,4 @@
 ####### common #######
-registry_installed_dir: /ansible/registry/installed
+registry_dir: /ansible/registry
+registry_installed_dir: "{{registry_dir}}/installed"
 launcher_dir: /usr/share/applications

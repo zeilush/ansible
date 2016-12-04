@@ -1,0 +1,22 @@
+---
+
+# tasks file for xfce
+- name: "create {{user}} user"
+  user:
+    name: "{{user}}"
+    password: "{{password}}"
+    shell: /bin/bash
+    groups: sudo
+    generate_ssh_key: true
+    createhome: true
+    state: present
+
+- name: Allow user {{user}} to have passwordless sudo
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: '^{{user}}'
+    line: '{{user}}  ALL=(ALL) NOPASSWD: ALL'
+
+#- name: start lightdm
+#  service: name=lightdm state=started

@@ -1,0 +1,20 @@
+---
+
+# tasks file for xfce
+- name: "apt | update cache"
+  apt: update_cache=yes
+
+- name: Install XFCE packages
+  apt: name={{ item }} state=present
+  with_items:
+    - xfce4
+    - xfce4-goodies
+    #- gnome-icon-theme-full
+    #- tango-icon-theme
+    - lightdm
+
+- name: set default session in lightdm to xfce
+  copy: src=../files/50-unity-greeter.conf dest=/usr/share/lightdm/lightdm.conf.d/50-unity-greeter.conf backup=yes
+
+#- name: start lightdm
+#  service: name=lightdm state=started

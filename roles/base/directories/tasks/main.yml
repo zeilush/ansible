@@ -1,0 +1,7 @@
+---
+
+- name: ensure registry directory exists
+  file: path={{registry_installed_dir}} state=directory
+
+#- name: start lightdm
+#  service: name=lightdm state=started

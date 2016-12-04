@@ -1,0 +1,10 @@
+# apt tasks file for ansible-role-chrome
+- name: "apt | ensure Gedit repository is absent"
+  apt_repository: repo='ppa:mc3man/older' state=present
+
+- name: Install Gedit packages
+  apt: name={{ item }} state=present
+  with_items:
+    - gedit 
+    - gedit-plugins 
+    - gedit-common
